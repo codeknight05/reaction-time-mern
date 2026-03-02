@@ -30,9 +30,4 @@ A Formula 1–inspired reaction-time game built with the MERN stack. Players tap
 
 ---
 
-## Getting Started
 
-### 1. Clone the repo
-
-git clone https://github.com/<your-username>/reaction-time-mern.git
-cd reaction-time-mern
