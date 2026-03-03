@@ -5,6 +5,12 @@ const POLL_INTERVAL_MS = 700;
 
 const formatMs = (value) => `${Math.max(0, Math.round(value || 0))} ms`;
 
+const playerStatusLabel = (sessionStatus, submitted) => {
+    if (sessionStatus === "waiting") return "In lobby";
+    if (sessionStatus === "finished") return "Finished";
+    return submitted ? "Tapped" : "Waiting tap";
+};
+
 export default function OnlineGame({ roomCode, playerId, onFinish }) {
     const [session, setSession] = useState(null);
     const [error, setError] = useState("");
@@ -137,9 +143,33 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
 
                 <div className="online-players">
                     {(session?.players || []).map((p) => (
-                        <div key={p.id} className="online-player-row">
-                            <span>{p.name}{p.id === playerId ? " (You)" : ""}</span>
-                            <span>{p.bestTime == null ? "-" : formatMs(p.bestTime)}</span>
+                        <div key={p.id} className={`online-player-row ${p.id === playerId ? "is-me" : ""}`}>
+                            <div className="online-player-main">
+                                <div className="online-player-name">
+                                    {p.name}
+                                </div>
+                                <div className="online-player-badges">
+                                    {p.id === playerId ? <span className="online-badge badge-me">You</span> : null}
+                                    {session?.hostId === p.id ? <span className="online-badge badge-host">Host</span> : null}
+                                    <span className={`online-badge ${p.submitted ? "badge-done" : "badge-wait"}`}>
+                                        {playerStatusLabel(session?.status, p.submitted)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="online-player-stats">
+                                <div className="online-stat">
+                                    <span className="online-stat-label">Best</span>
+                                    <span className="online-stat-value">
+                                        {p.bestTime == null ? "-" : formatMs(p.bestTime)}
+                                    </span>
+                                </div>
+                                <div className="online-stat">
+                                    <span className="online-stat-label">Attempts</span>
+                                    <span className="online-stat-value">
+                                        {(p.attempts || []).length}/{session?.totalAttempts || 5}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     ))}
                 </div>

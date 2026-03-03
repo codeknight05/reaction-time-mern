@@ -1158,16 +1158,111 @@ button:active {
   margin-top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .online-player-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   border: 1px solid rgba(0, 102, 255, 0.35);
   background: rgba(0, 102, 255, 0.12);
-  border-radius: 4px;
-  padding: 8px 10px;
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.online-player-row.is-me {
+  border-color: rgba(255, 255, 0, 0.75);
+  background: rgba(255, 255, 0, 0.08);
+}
+
+.online-player-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.online-player-name {
+  color: #fff;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.online-player-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.online-badge {
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  border: 1px solid transparent;
+}
+
+.badge-me {
+  color: #0a0e27;
+  background: #ffff00;
+}
+
+.badge-host {
+  color: #fff;
+  background: rgba(0, 102, 255, 0.8);
+  border-color: rgba(0, 102, 255, 1);
+}
+
+.badge-done {
+  color: #0a0e27;
+  background: #8cff9a;
+}
+
+.badge-wait {
+  color: #ffe08c;
+  background: rgba(255, 224, 140, 0.12);
+  border-color: rgba(255, 224, 140, 0.5);
+}
+
+.online-player-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(72px, auto));
+  gap: 6px;
+}
+
+.online-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.online-stat-label {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.online-stat-value {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #ffff00;
+}
+
+@media (max-width: 700px) {
+  .online-player-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .online-player-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .online-stat {
+    align-items: flex-start;
+  }
 }
