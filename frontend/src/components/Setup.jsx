@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API = "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const generateDeviceId = () => {
     return 'device_' + Math.random().toString(36).substr(2, 9);
@@ -26,7 +26,7 @@ export default function Setup({ onStart }) {
     useEffect(() => {
         const fetchLeaderboard = async () => {
             try {
-                const response = await fetch("http://localhost:5000/api/leaderboard");
+                const response = await fetch(`${API_BASE}/api/leaderboard`);
                 const data = await response.json();
                 setLeaderboard(Array.isArray(data) ? data : []);
             } catch (error) {
@@ -101,7 +101,7 @@ export default function Setup({ onStart }) {
                                     bestTime: Infinity
                                 }];
                                 try {
-                                    const res = await fetch(`${API}/api/game`, {
+                                    const res = await fetch(`${API_BASE}/api/game`, {
                                         method: "POST",
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({ players: list })
@@ -120,7 +120,7 @@ export default function Setup({ onStart }) {
                                 const list = toGamePlayers(players.filter((p) => p.name?.trim()));
                                 if (list.length === 0) return;
                                 try {
-                                    const res = await fetch(`${API}/api/game`, {
+                                    const res = await fetch(`${API_BASE}/api/game`, {
                                         method: "POST",
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({ players: list })
