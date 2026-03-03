@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { API_BASE, API_MISCONFIGURED, parseJsonResponse } from "../config/api";
 
 const generateDeviceId = () => {
     return 'device_' + Math.random().toString(36).substr(2, 9);
@@ -25,9 +24,13 @@ export default function Setup({ onStart }) {
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
+            if (API_MISCONFIGURED) {
+                console.error("Invalid VITE_API_BASE_URL: replace placeholder URL with your backend URL.");
+                return;
+            }
             try {
                 const response = await fetch(`${API_BASE}/api/leaderboard`);
-                const data = await response.json();
+                const data = await parseJsonResponse(response);
                 setLeaderboard(Array.isArray(data) ? data : []);
             } catch (error) {
                 console.error("Failed to fetch leaderboard:", error);
@@ -106,7 +109,7 @@ export default function Setup({ onStart }) {
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({ players: list })
                                     });
-                                    const game = await res.json();
+                                    const game = await parseJsonResponse(res);
                                     onStart(list, game._id);
                                 } catch (err) {
                                     console.error("Failed to start game:", err);
@@ -125,7 +128,7 @@ export default function Setup({ onStart }) {
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({ players: list })
                                     });
-                                    const game = await res.json();
+                                    const game = await parseJsonResponse(res);
                                     onStart(list, game._id);
                                 } catch (err) {
                                     console.error("Failed to start game:", err);

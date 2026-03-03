@@ -2,8 +2,7 @@ import { useState } from "react";
 import Setup from "./components/Setup";
 import Game from "./components/Game";
 import Finish from "./components/Finish";
-
-const API = "http://localhost:5000";
+import { API_BASE, API_MISCONFIGURED, parseJsonResponse } from "./config/api";
 
 function App() {
     const [players, setPlayers] = useState(null);
@@ -21,8 +20,13 @@ function App() {
             setFinished(true);
             return;
         }
+        if (API_MISCONFIGURED) {
+            console.error("Invalid VITE_API_BASE_URL: replace placeholder URL with your backend URL.");
+            setFinished(true);
+            return;
+        }
         try {
-            await fetch(`${API}/api/game/${gameId}/finish`, {
+            const response = await fetch(`${API_BASE}/api/game/${gameId}/finish`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -33,6 +37,7 @@ function App() {
                     }))
                 })
             });
+            await parseJsonResponse(response);
         } catch (err) {
             console.error("Failed to save results:", err);
         }

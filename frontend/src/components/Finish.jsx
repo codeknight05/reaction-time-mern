@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+import { API_BASE, API_MISCONFIGURED, parseJsonResponse } from "../config/api";
 
 export default function Finish({ players }) {
     const [leaderboard, setLeaderboard] = useState([]);
 
     useEffect(() => {
+        if (API_MISCONFIGURED) {
+            console.error("Invalid VITE_API_BASE_URL: replace placeholder URL with your backend URL.");
+            return;
+        }
+
         fetch(`${API_BASE}/api/leaderboard`)
-            .then(res => res.json())
+            .then(parseJsonResponse)
             .then(setLeaderboard);
     }, []);
 
