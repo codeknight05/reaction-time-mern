@@ -16,7 +16,10 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
     const [error, setError] = useState("");
     const [now, setNow] = useState(Date.now());
     const [submitting, setSubmitting] = useState(false);
+    const [toast, setToast] = useState("");
     const finishedRef = useRef(false);
+    const goSignalRef = useRef(null);
+    const audioCtxRef = useRef(null);
 
     const me = useMemo(
         () => session?.players?.find((p) => p.id === playerId) || null,
@@ -26,11 +29,20 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
     const isRunning = session?.status === "running";
     const hasSubmitted = Boolean(me?.submitted);
     const canTap = isRunning && !hasSubmitted && session?.goAt && now >= session.goAt && !submitting;
+    const countdownSeconds = session?.goAt
+        ? Math.max(0, Math.ceil((session.goAt - now) / 1000))
+        : 0;
 
     useEffect(() => {
         const timer = setInterval(() => setNow(Date.now()), 60);
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+        if (!toast) return;
+        const timer = setTimeout(() => setToast(""), 1800);
+        return () => clearTimeout(timer);
+    }, [toast]);
 
     useEffect(() => {
         if (API_MISCONFIGURED) {
@@ -71,6 +83,68 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
         onFinish(finalPlayers);
     }, [session, onFinish]);
 
+    useEffect(() => {
+        if (!session || session.status !== "running" || !session.goAt) return;
+        const key = `${session.attempt}:${session.goAt}`;
+        if (goSignalRef.current === key) return;
+        if (now < session.goAt) return;
+
+        goSignalRef.current = key;
+        playTone(880, 160, "square", 0.07);
+        vibrate([40, 30, 40]);
+    }, [now, session]);
+
+    const vibrate = (pattern) => {
+        if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+            navigator.vibrate(pattern);
+        }
+    };
+
+    const getAudioCtx = () => {
+        if (typeof window === "undefined") return null;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return null;
+        if (!audioCtxRef.current) audioCtxRef.current = new AudioContextClass();
+        return audioCtxRef.current;
+    };
+
+    const playTone = (frequency, durationMs, type = "sine", gain = 0.06) => {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        if (ctx.state === "suspended") {
+            ctx.resume().catch(() => {});
+        }
+        const osc = ctx.createOscillator();
+        const amp = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = frequency;
+        amp.gain.value = gain;
+        osc.connect(amp);
+        amp.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + durationMs / 1000);
+    };
+
+    const handleCopyCode = async (e) => {
+        e.stopPropagation();
+        try {
+            if (navigator?.clipboard?.writeText) {
+                await navigator.clipboard.writeText(roomCode);
+            } else {
+                const temp = document.createElement("textarea");
+                temp.value = roomCode;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand("copy");
+                document.body.removeChild(temp);
+            }
+            setToast("Room code copied");
+            playTone(720, 120, "triangle", 0.05);
+        } catch {
+            setToast("Copy failed");
+        }
+    };
+
     const handleStart = async () => {
         try {
             const res = await fetch(`${API_BASE}/api/online/session/${roomCode}/start`, {
@@ -81,6 +155,7 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
             const data = await parseJsonResponse(res);
             setSession(data);
             setError("");
+            playTone(520, 110, "square", 0.05);
         } catch (err) {
             setError(err.message || "Failed to start room.");
         }
@@ -99,6 +174,8 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
             const data = await parseJsonResponse(res);
             setSession(data);
             setError("");
+            playTone(980, 100, "triangle", 0.06);
+            vibrate(25);
         } catch (err) {
             setError(err.message || "Failed to submit tap.");
         } finally {
@@ -122,12 +199,29 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
         >
             <div className="online-panel">
                 <h2>Online Multiplayer</h2>
-                <p>Room: <strong>{roomCode}</strong></p>
+                <div className="online-room-row">
+                    <p>
+                        Room: <strong>{roomCode}</strong>
+                    </p>
+                    <button type="button" className="copy-room-btn" onClick={handleCopyCode}>
+                        Copy Code
+                    </button>
+                </div>
                 <p>
                     Attempt {session?.attempt || 1}/{session?.totalAttempts || 5}
                 </p>
                 <p>{statusText}</p>
                 {error ? <p className="online-error">{error}</p> : null}
+                {toast ? <div className="online-toast">{toast}</div> : null}
+
+                {isRunning ? (
+                    <div className={`countdown-wrap ${canTap ? "go-live" : ""}`}>
+                        <div className="countdown-ring" />
+                        <div className="countdown-value">
+                            {canTap ? "GO" : countdownSeconds}
+                        </div>
+                    </div>
+                ) : null}
 
                 {session?.status === "waiting" && isHost ? (
                     <button

@@ -1133,17 +1133,18 @@ button:active {
 
 .online-panel {
   width: min(92vw, 760px);
-  background: rgba(10, 14, 39, 0.9);
-  border: 2px solid #0066ff;
+  background: linear-gradient(160deg, rgba(13, 19, 30, 0.96) 0%, rgba(11, 16, 25, 0.94) 60%, rgba(31, 22, 8, 0.9) 100%);
+  border: 2px solid #ff8700;
   border-radius: 8px;
   padding: 22px;
-  box-shadow: 0 0 30px rgba(0, 102, 255, 0.35);
+  box-shadow: 0 0 30px rgba(255, 135, 0, 0.3);
 }
 
 .online-panel h2 {
   margin-bottom: 10px;
-  color: #ffff00;
+  color: #ffb257;
   letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .online-panel p {
@@ -1152,6 +1153,73 @@ button:active {
 
 .online-error {
   color: #ff9b9b;
+}
+
+.online-room-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.copy-room-btn {
+  min-width: 0;
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  font-size: 0.82em;
+  letter-spacing: 1px;
+  border-color: #ffb257;
+  background: linear-gradient(135deg, #ff8700, #d46d00);
+}
+
+.online-toast {
+  margin-top: 8px;
+  display: inline-block;
+  background: rgba(255, 178, 87, 0.14);
+  border: 1px solid rgba(255, 178, 87, 0.55);
+  color: #ffd9a6;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  animation: toastIn 0.2s ease;
+}
+
+.countdown-wrap {
+  margin: 14px 0;
+  width: 110px;
+  height: 110px;
+  border-radius: 999px;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.countdown-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 3px solid rgba(255, 178, 87, 0.35);
+  box-shadow: 0 0 0 0 rgba(255, 135, 0, 0.4);
+  animation: pulseCountdown 1s infinite;
+}
+
+.countdown-value {
+  position: relative;
+  z-index: 1;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffd9a6;
+  text-shadow: 0 0 18px rgba(255, 135, 0, 0.6);
+}
+
+.countdown-wrap.go-live .countdown-ring {
+  border-color: rgba(115, 255, 171, 0.65);
+  animation: pulseGo 0.45s infinite;
+}
+
+.countdown-wrap.go-live .countdown-value {
+  color: #73ffab;
+  text-shadow: 0 0 18px rgba(115, 255, 171, 0.7);
 }
 
 .online-players {
@@ -1252,7 +1320,49 @@ button:active {
   color: #ffff00;
 }
 
+@keyframes pulseCountdown {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 135, 0, 0.45);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 16px rgba(255, 135, 0, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 135, 0, 0);
+  }
+}
+
+@keyframes pulseGo {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(115, 255, 171, 0.5);
+  }
+  100% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 18px rgba(115, 255, 171, 0);
+  }
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 700px) {
+  .online-room-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
   .online-player-row {
     flex-direction: column;
     align-items: stretch;
