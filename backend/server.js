@@ -53,6 +53,14 @@ const createRoomCode = () => {
 
 const getSession = (code) => onlineSessions.get(String(code || "").toUpperCase());
 
+const getClientIp = (req) => {
+    const forwarded = req.headers["x-forwarded-for"];
+    if (typeof forwarded === "string" && forwarded.trim()) {
+        return forwarded.split(",")[0].trim();
+    }
+    return req.ip || req.socket?.remoteAddress || "unknown";
+};
+
 const publicSession = (session) => ({
     code: session.code,
     status: session.status,
@@ -130,6 +138,7 @@ app.post("/api/game/:id/finish", async (req, res) => {
 app.post("/api/online/session", (req, res) => {
     const playerName = normalizeName(req.body?.name);
     if (!playerName) return res.status(400).json({ error: "Player name is required" });
+    const playerIp = getClientIp(req);
 
     let code = createRoomCode();
     while (onlineSessions.has(code)) {
@@ -148,6 +157,7 @@ app.post("/api/online/session", (req, res) => {
         players: [{
             id: playerId,
             name: playerName,
+            ip: playerIp,
             attempts: [],
             bestTime: Infinity
         }]
@@ -164,11 +174,22 @@ app.post("/api/online/session/:code/join", (req, res) => {
 
     const playerName = normalizeName(req.body?.name);
     if (!playerName) return res.status(400).json({ error: "Player name is required" });
+    const playerIp = getClientIp(req);
+    const requestedNameKey = nameKey(playerName);
+
+    const duplicateFromSameIp = session.players.some((p) =>
+        p.ip === playerIp && nameKey(p.name) === requestedNameKey
+    );
+
+    if (duplicateFromSameIp) {
+        return res.status(409).json({ error: "This name is already in use from your IP in this room." });
+    }
 
     const playerId = randomUUID();
     session.players.push({
         id: playerId,
         name: playerName,
+        ip: playerIp,
         attempts: [],
         bestTime: Infinity
     });
