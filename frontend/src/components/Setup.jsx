@@ -26,6 +26,7 @@ export default function Setup({ onStart }) {
     });
 
     const [leaderboard, setLeaderboard] = useState([]);
+    const [roomCode, setRoomCode] = useState("");
 
     useEffect(() => {
         const fetchLeaderboard = async () => {
@@ -156,7 +157,60 @@ export default function Setup({ onStart }) {
                         >
                             Multiplayer
                         </button>
+                        <button
+                            onClick={async () => {
+                                const playerName = players[0]?.name?.trim();
+                                if (!playerName) return;
+                                try {
+                                    const res = await fetch(`${API_BASE}/api/online/session`, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ name: playerName })
+                                    });
+                                    const data = await parseJsonResponse(res);
+                                    onStart({
+                                        mode: "online",
+                                        playerId: data.playerId,
+                                        roomCode: data.session.code
+                                    });
+                                } catch (err) {
+                                    console.error("Failed to create online room:", err);
+                                }
+                            }}
+                        >
+                            Create Online
+                        </button>
+                        <button
+                            onClick={async () => {
+                                const playerName = players[0]?.name?.trim();
+                                const code = roomCode.trim().toUpperCase();
+                                if (!playerName || !code) return;
+                                try {
+                                    const res = await fetch(`${API_BASE}/api/online/session/${code}/join`, {
+                                        method: "POST",
+                                        headers: { "Content-Type": "application/json" },
+                                        body: JSON.stringify({ name: playerName })
+                                    });
+                                    const data = await parseJsonResponse(res);
+                                    onStart({
+                                        mode: "online",
+                                        playerId: data.playerId,
+                                        roomCode: data.session.code
+                                    });
+                                } catch (err) {
+                                    console.error("Failed to join online room:", err);
+                                }
+                            }}
+                        >
+                            Join Online
+                        </button>
                     </div>
+
+                    <input
+                        placeholder="Room code (for Join Online)"
+                        value={roomCode}
+                        onChange={(e) => setRoomCode(e.target.value)}
+                    />
                 </div>
             </div>
         </div>

@@ -1130,3 +1130,44 @@ button:active {
     min-width: 100%;
   }
 }
+
+.online-panel {
+  width: min(92vw, 760px);
+  background: rgba(10, 14, 39, 0.9);
+  border: 2px solid #0066ff;
+  border-radius: 8px;
+  padding: 22px;
+  box-shadow: 0 0 30px rgba(0, 102, 255, 0.35);
+}
+
+.online-panel h2 {
+  margin-bottom: 10px;
+  color: #ffff00;
+  letter-spacing: 1px;
+}
+
+.online-panel p {
+  margin: 6px 0;
+}
+
+.online-error {
+  color: #ff9b9b;
+}
+
+.online-players {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.online-player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(0, 102, 255, 0.35);
+  background: rgba(0, 102, 255, 0.12);
+  border-radius: 4px;
+  padding: 8px 10px;
+}
