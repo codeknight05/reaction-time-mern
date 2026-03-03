@@ -1376,3 +1376,24 @@ button:active {
     align-items: flex-start;
   }
 }
+
+.false-start-image {
+  display: block;
+  width: min(520px, 80vw);
+  max-height: 40vh;
+  margin: 16px auto 0;
+  border-radius: 14px;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.45);
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+@media (max-width: 700px) {
+  .false-start-image {
+    width: min(92vw, 420px);
+    max-height: 32vh;
+    margin-top: 12px;
+  }
+}

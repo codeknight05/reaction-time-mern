@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 const ATTEMPTS = 5;
 const FALSE_START_MESSAGE = "ACHA LAUDE";
 const FALSE_START_DELAY_MS = 1000;
+const FALSE_START_IMAGE_SRC = "/acha-laude.jpg";
 
 export default function Game({ players, onFinish }) {
     const [current, setCurrent] = useState(0);
@@ -104,10 +105,12 @@ export default function Game({ players, onFinish }) {
         }, 500);
     };
 
+    const isFalseStart = status === "false-start";
+
     const statusMessage = (() => {
         if (status === "ready") return "Tap to start the lights";
         if (status === "sequence") return lightsOn === 5 ? "All lights red... wait for GO!" : "Lights on... get ready";
-        if (status === "false-start") return FALSE_START_MESSAGE;
+        if (isFalseStart) return FALSE_START_MESSAGE;
         if (status === "go") return "GO! Tap now!";
         if (status === "clicked") return "Recording time...";
         return "";
@@ -138,6 +141,15 @@ export default function Game({ players, onFinish }) {
                 <div className="game-status-text">
                     {statusMessage}
                 </div>
+
+                {isFalseStart ? (
+                    <img
+                        src={FALSE_START_IMAGE_SRC}
+                        alt="Acha Laude"
+                        className="false-start-image"
+                        draggable={false}
+                    />
+                ) : null}
             </div>
         </div>
     );
