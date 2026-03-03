@@ -197,6 +197,29 @@ app.post("/api/online/session/:code/join", (req, res) => {
     res.json({ playerId, session: publicSession(session) });
 });
 
+app.post("/api/online/session/:code/kick", (req, res) => {
+    const session = getSession(req.params.code);
+    if (!session) return res.status(404).json({ error: "Session not found" });
+    if (session.status !== "waiting") return res.status(400).json({ error: "Can only kick players in lobby" });
+
+    const requesterId = req.body?.playerId;
+    const targetPlayerId = req.body?.targetPlayerId;
+
+    if (session.hostId !== requesterId) return res.status(403).json({ error: "Only host can kick players" });
+    if (!targetPlayerId) return res.status(400).json({ error: "Target player is required" });
+    if (targetPlayerId === session.hostId) return res.status(400).json({ error: "Host cannot be kicked" });
+
+    const beforeCount = session.players.length;
+    session.players = session.players.filter((p) => p.id !== targetPlayerId);
+    session.submittedPlayerIds.delete(targetPlayerId);
+
+    if (session.players.length === beforeCount) {
+        return res.status(404).json({ error: "Player not found in session" });
+    }
+
+    res.json(publicSession(session));
+});
+
 app.get("/api/online/session/:code", (req, res) => {
     const session = getSession(req.params.code);
     if (!session) return res.status(404).json({ error: "Session not found" });

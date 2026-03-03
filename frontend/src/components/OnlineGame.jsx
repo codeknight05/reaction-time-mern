@@ -16,6 +16,7 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
     const [error, setError] = useState("");
     const [now, setNow] = useState(Date.now());
     const [submitting, setSubmitting] = useState(false);
+    const [kickingId, setKickingId] = useState("");
     const [toast, setToast] = useState("");
     const finishedRef = useRef(false);
     const goSignalRef = useRef(null);
@@ -183,6 +184,29 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
         }
     };
 
+    const handleKick = async (targetPlayerId) => {
+        if (!session || !isHost || session.status !== "waiting" || !targetPlayerId || targetPlayerId === playerId) {
+            return;
+        }
+        try {
+            setKickingId(targetPlayerId);
+            const res = await fetch(`${API_BASE}/api/online/session/${roomCode}/kick`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ playerId, targetPlayerId })
+            });
+            const data = await parseJsonResponse(res);
+            setSession(data);
+            setError("");
+            setToast("Player removed");
+            playTone(450, 110, "square", 0.05);
+        } catch (err) {
+            setError(err.message || "Failed to kick player.");
+        } finally {
+            setKickingId("");
+        }
+    };
+
     const statusText = (() => {
         if (!session) return "Loading room...";
         if (session.status === "waiting") return "Waiting in lobby";
@@ -264,6 +288,19 @@ export default function OnlineGame({ roomCode, playerId, onFinish }) {
                                     </span>
                                 </div>
                             </div>
+                            {isHost && session?.status === "waiting" && p.id !== playerId ? (
+                                <button
+                                    type="button"
+                                    className="kick-player-btn"
+                                    disabled={kickingId === p.id}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleKick(p.id);
+                                    }}
+                                >
+                                    {kickingId === p.id ? "Kicking..." : "Kick"}
+                                </button>
+                            ) : null}
                         </div>
                     ))}
                 </div>

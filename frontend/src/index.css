@@ -1301,6 +1301,26 @@ button:active {
   gap: 6px;
 }
 
+.kick-player-btn {
+  align-self: center;
+  margin-left: auto;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 120, 120, 0.7);
+  background: rgba(255, 42, 42, 0.2);
+  color: #ffd7d7;
+  cursor: pointer;
+}
+
+.kick-player-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .online-stat {
   display: flex;
   flex-direction: column;
