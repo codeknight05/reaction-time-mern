@@ -9,6 +9,11 @@ const toGamePlayers = (list) =>
     list.map((p) => ({ name: p.name, attempts: [], bestTime: Infinity }));
 
 export default function Setup({ onStart }) {
+    const [isStandingsOpen, setIsStandingsOpen] = useState(() => {
+        if (typeof window === "undefined") return true;
+        return window.innerWidth > 1024;
+    });
+
     const [players, setPlayers] = useState(() => {
         let deviceId = localStorage.getItem("deviceId");
         if (!deviceId) {
@@ -56,8 +61,22 @@ export default function Setup({ onStart }) {
             <video className="background-video" autoPlay muted loop>
                 <source src="/SaveVid.Net_AQOCOX4P58UbGTHphTnXrli5M9fM6jmsh7Pqe311NOyS7kKf7FxufrsfsLkKsZOT2zBmyrcfZ6vtRHa9Ke-ZeDY6wQkl5JEUEO1TyGxeUg.mp4" type="video/mp4" />
             </video>
-            
-            <nav className="standings-nav" aria-label="Standings">
+
+            <button
+                type="button"
+                className="standings-toggle"
+                onClick={() => setIsStandingsOpen((prev) => !prev)}
+                aria-expanded={isStandingsOpen}
+                aria-controls="standings-sidebar"
+            >
+                {isStandingsOpen ? "Hide Standings" : "Show Standings"}
+            </button>
+
+            <nav
+                id="standings-sidebar"
+                className={`standings-nav ${isStandingsOpen ? "open" : "closed"}`}
+                aria-label="Standings"
+            >
                 <h2>Standings</h2>
                 <div className="leaderboard-list" role="list">
                     {leaderboard.length === 0 ? (
