@@ -20,6 +20,13 @@ A Formula 1–inspired reaction-time game built with the MERN stack. Players tap
   - Solo: one driver, multiple attempts.  
   - Multiplayer: multiple drivers take turns; each gets a fixed number of attempts.
 
+- **Online Multiplayer (cross-device rooms)**  
+  - Create or join a room using a 6-character code.  
+  - Host can start when at least 2 players are in lobby and can kick players before start.  
+  - Match runs in synced rounds (5 attempts per player) with randomized GO timing each round.  
+  - Live room status shows who has tapped, attempts completed, and current best times.  
+  - Prevents duplicate same-name joins from the same IP in the same room.  
+  - Final winner is the fastest best reaction; results are saved to game history and leaderboard.
 - **Global leaderboard**  
   - Stores best time per player name.  
   - Returning players update their **existing** entry when they set a better time.  
