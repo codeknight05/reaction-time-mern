@@ -204,6 +204,16 @@ export default function Setup({ onStart }) {
                         >
                             Join Online
                         </button>
+                        <button
+                            className="arena-launch-btn"
+                            onClick={() => {
+                                const playerName = players[0]?.name?.trim();
+                                if (!playerName) return;
+                                onStart({ mode: "arena", roomCode: roomCode.trim().toUpperCase() || "MAIN", playerName });
+                            }}
+                        >
+                            Live Arena
+                        </button>
                     </div>
 
                     <input

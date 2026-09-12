@@ -3,6 +3,7 @@ import Setup from "./components/Setup";
 import Game from "./components/Game";
 import Finish from "./components/Finish";
 import OnlineGame from "./components/OnlineGame";
+import LiveArena from "./components/LiveArena";
 import { API_BASE, API_MISCONFIGURED, parseJsonResponse } from "./config/api";
 
 function App() {
@@ -10,6 +11,8 @@ function App() {
     const [gameId, setGameId] = useState(null);
     const [onlineRoomCode, setOnlineRoomCode] = useState(null);
     const [onlinePlayerId, setOnlinePlayerId] = useState(null);
+    const [arenaRoomCode, setArenaRoomCode] = useState(null);
+    const [arenaPlayerName, setArenaPlayerName] = useState(null);
     const [finished, setFinished] = useState(false);
 
     const handleStart = (payload, id) => {
@@ -21,12 +24,24 @@ function App() {
             setFinished(false);
             return;
         }
+        if (payload?.mode === "arena") {
+            setArenaRoomCode(payload.roomCode);
+            setArenaPlayerName(payload.playerName);
+            setPlayers(null);
+            setGameId(null);
+            setOnlineRoomCode(null);
+            setOnlinePlayerId(null);
+            setFinished(false);
+            return;
+        }
 
         const playerList = payload;
         setPlayers(playerList);
         setGameId(id);
         setOnlineRoomCode(null);
         setOnlinePlayerId(null);
+        setArenaRoomCode(null);
+        setArenaPlayerName(null);
         setFinished(false);
     };
 
@@ -67,7 +82,13 @@ function App() {
         setFinished(true);
     };
 
-    if (!players && !onlineRoomCode) return <Setup onStart={handleStart} />;
+    const handleArenaExit = () => {
+        setArenaRoomCode(null);
+        setArenaPlayerName(null);
+    };
+
+    if (!players && !onlineRoomCode && !arenaRoomCode) return <Setup onStart={handleStart} />;
+    if (arenaRoomCode && arenaPlayerName) return <LiveArena roomCode={arenaRoomCode} playerName={arenaPlayerName} onExit={handleArenaExit} />;
     if (onlineRoomCode && onlinePlayerId) {
         return (
             <OnlineGame
